@@ -207,7 +207,7 @@ public class TranslationCondition {
 	 * @return
 	 */
 	public TranslationCondition setDocumentOp(OpFlag op) {
-		this.blockCommentOperation = op;
+		this.documentOperation = op;
 		return TranslationCondition.this;
 	}
 
