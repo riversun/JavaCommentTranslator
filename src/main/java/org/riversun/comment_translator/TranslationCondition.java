@@ -45,9 +45,10 @@ import com.memetix.mst.language.Language;
  */
 public class TranslationCondition {
 
-	public enum OpFlag{
-		TRANSLATE,NOT_TRANSLATE,REMOVE
+	public enum OpFlag {
+		TRANSLATE, NOT_TRANSLATE, REMOVE
 	}
+
 	String clientID = null;
 	String clientSecret = null;
 
@@ -59,9 +60,8 @@ public class TranslationCondition {
 
 	boolean copyAllFiles = false;
 
-	
 	OpFlag javaDocCommentOperation = OpFlag.TRANSLATE;
-	OpFlag commentOperation= OpFlag.TRANSLATE;
+	OpFlag commentOperation = OpFlag.TRANSLATE;
 	OpFlag blockCommentOperation = OpFlag.TRANSLATE;
 
 	String sourceCodeCharset = "UTF-8";
@@ -135,39 +135,38 @@ public class TranslationCondition {
 		return TranslationCondition.this;
 	}
 
- 
-
 	/**
-	 * To enable translation of JavaDoc comments
+	 * Set operation for JavaDoc comments
 	 * 
 	 * @param op
 	 * @return
 	 */
-	public TranslationCondition setJavaDocCommentEnabled(OpFlag op) {
+	public TranslationCondition setJavaDocCommentOp(OpFlag op) {
 		this.javaDocCommentOperation = op;
 		return TranslationCondition.this;
 	}
 
 	/**
-	 * To enable translation of comments
+	 * Set operation for normal comments
 	 * 
 	 * @param op
 	 * @return
 	 */
-	public TranslationCondition setCommentEnabled(OpFlag op) {
+	public TranslationCondition setNormalCommentOp(OpFlag op) {
 		this.commentOperation = op;
 		return TranslationCondition.this;
 	}
 
 	/**
-	 * To enable translation of Block comments
+	 * Set operation for Block comments
 	 * 
 	 * @param op
 	 * @return
 	 */
-	public TranslationCondition setBlockCommentEnabled(OpFlag op) {
+	public TranslationCondition setBlockCommentOp(OpFlag op) {
 		this.blockCommentOperation = op;
 		return TranslationCondition.this;
 	}
 
+	
 }
