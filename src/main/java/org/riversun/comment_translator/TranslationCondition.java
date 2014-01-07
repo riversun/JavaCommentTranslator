@@ -12,6 +12,9 @@
  */
 package org.riversun.comment_translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.memetix.mst.language.Language;
 
 /**
@@ -64,7 +67,14 @@ public class TranslationCondition {
 	OpFlag commentOperation = OpFlag.TRANSLATE;
 	OpFlag blockCommentOperation = OpFlag.TRANSLATE;
 
+	// A 'document' is a text file such as readme.txt you specified by the
+	// addDocument method
+	OpFlag documentOperation = OpFlag.NOT_TRANSLATE;
+
 	String sourceCodeCharset = "UTF-8";
+
+	List<String> targetSourceFileExtensionList = new ArrayList<String>();
+	List<String> targetDocumentFileExtensionList = new ArrayList<String>();
 
 	/**
 	 * Set from lang<br>
@@ -136,6 +146,28 @@ public class TranslationCondition {
 	}
 
 	/**
+	 * Add extension that comment part is to be translated like ".java"
+	 * 
+	 * @param extension
+	 * @return
+	 */
+	public TranslationCondition addSourceFileExtension(String extension) {
+		this.targetSourceFileExtensionList.add(extension);
+		return TranslationCondition.this;
+	}
+
+	/**
+	 * Add extension to be translated like ".txt"
+	 * 
+	 * @param extension
+	 * @return
+	 */
+	public TranslationCondition addDocumentFileExtension(String extension) {
+		this.targetDocumentFileExtensionList.add(extension);
+		return TranslationCondition.this;
+	}
+
+	/**
 	 * Set operation for JavaDoc comments
 	 * 
 	 * @param op
@@ -168,5 +200,15 @@ public class TranslationCondition {
 		return TranslationCondition.this;
 	}
 
-	
+	/**
+	 * Set operation for Documents
+	 * 
+	 * @param op
+	 * @return
+	 */
+	public TranslationCondition setDocumentOp(OpFlag op) {
+		this.blockCommentOperation = op;
+		return TranslationCondition.this;
+	}
+
 }
