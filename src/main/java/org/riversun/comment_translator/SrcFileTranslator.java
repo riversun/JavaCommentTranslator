@@ -306,7 +306,7 @@ public class SrcFileTranslator {
 	private String doTranslate(Language from, String fromText, Language to) {
 
 		if (mCondition.dryRunEnabled) {
-			return "DUMMY TEXT TRANSLATION(DRY RUN MODE";
+			return "DUMMY TEXT TRANSLATION(DRY RUN MODE)";
 		}
 
 		if (to == null) {
