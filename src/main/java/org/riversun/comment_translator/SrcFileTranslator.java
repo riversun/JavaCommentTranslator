@@ -44,7 +44,6 @@ public class SrcFileTranslator {
 	private String mSourceCodeOrg = null;
 	private TranslationCondition mCondition = null;
 
-	 
 	/**
 	 * Open and read a java source file to prepare translation
 	 * 
@@ -146,12 +145,13 @@ public class SrcFileTranslator {
 		return sourceCodeChanged;
 
 	}
-	
+
 	/**
 	 * Do translate full of text
+	 * 
 	 * @return
 	 */
-	public String translateText(){
+	public String translateText() {
 		return doTranslate(mCondition.fromLang, mSourceCodeOrg, mCondition.toLang);
 	}
 
@@ -303,14 +303,10 @@ public class SrcFileTranslator {
 		return sg.toString();
 	}
 
-	private boolean isBlank(String text) {
-		return text.replace("\r", "").replace("\n", "").length() == 0;
-	}
-
 	private String doTranslate(Language from, String fromText, Language to) {
 
 		if (mCondition.dryRunEnabled) {
-			return "DRY_RUN from=" + from + " to=" + to;
+			return "DUMMY TEXT TRANSLATION(DRY RUN MODE";
 		}
 
 		if (to == null) {
