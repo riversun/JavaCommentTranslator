@@ -27,16 +27,13 @@ import org.riversun.comment_translator.SrcFileTranslator.SrcFileProgressListener
  */
 public class TestSrcFileTranslator extends TestBase {
 
-	// To set this false,you should put client_id/secret and something into
-	// TestParamCondition.java.
-	public static final boolean DRY_RUN_MODE_ENALBLED = true;
+
 
 	protected SrcFileTranslator get() {
 
 		SrcFileTranslator sft = new SrcFileTranslator();
 
 		// NO web service client_id/secret needed on DryRun mode
-		sft.setDryRun(DRY_RUN_MODE_ENALBLED);
 
 		return sft;
 	}

@@ -25,9 +25,14 @@ public class TestParamCondition {
 	private static final Language fromLang = Language.AUTO_DETECT;
 	private static final Language toLang = Language.ENGLISH;
 
+	// To set this false,you should put client_id/secret and something into
+	// TestParamCondition.java.
+	public static final boolean DRY_RUN_MODE_ENALBLED = true;
+
 	public static TranslationCondition getCondition() {
 
 		TranslationCondition condition = new TranslationCondition();
+		condition.setDryRunModeEnabled(DRY_RUN_MODE_ENALBLED);
 		condition.setFromLang(fromLang);
 		condition.setToLang(toLang);
 		condition.setProxy(proxyHost, proxyPort);

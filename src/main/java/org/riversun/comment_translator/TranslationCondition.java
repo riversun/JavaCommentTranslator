@@ -76,6 +76,19 @@ public class TranslationCondition {
 	List<String> targetSourceFileExtensionList = new ArrayList<String>();
 	List<String> targetDocumentFileExtensionList = new ArrayList<String>();
 
+	boolean dryRunEnabled = false;
+
+	/**
+	 * Enable dry-run mode which is not actually translated
+	 * 
+	 * @param enabled
+	 * @return
+	 */
+	public TranslationCondition setDryRunModeEnabled(boolean enabled) {
+		this.dryRunEnabled = enabled;
+		return TranslationCondition.this;
+	}
+
 	/**
 	 * Set from lang<br>
 	 * 

@@ -44,12 +44,7 @@ public class SrcFileTranslator {
 	private String mSourceCodeOrg = null;
 	private TranslationCondition mCondition = null;
 
-	private boolean mIsDryRun = false;
-
-	public void setDryRun(boolean dryRunEnabled) {
-		mIsDryRun = dryRunEnabled;
-	}
-
+	 
 	/**
 	 * Open and read a java source file to prepare translation
 	 * 
@@ -127,7 +122,7 @@ public class SrcFileTranslator {
 
 				final String translatedText;
 
-				if (mIsDryRun) {
+				if (mCondition.dryRunEnabled) {
 					translatedText = getCommentEnclosedWithCommentChars(codeBlock.tagType, "DUMMY TRANSLATION(DRY RUN MODE)");
 				} else {
 					translatedText = translateInternal(codeBlock.tagType, codeBlock.value);
@@ -150,6 +145,14 @@ public class SrcFileTranslator {
 
 		return sourceCodeChanged;
 
+	}
+	
+	/**
+	 * Do translate full of text
+	 * @return
+	 */
+	public String translateText(){
+		return doTranslate(mCondition.fromLang, mSourceCodeOrg, mCondition.toLang);
 	}
 
 	private String translateInternal(CodeType commentType, String comment) {
@@ -305,6 +308,10 @@ public class SrcFileTranslator {
 	}
 
 	private String doTranslate(Language from, String fromText, Language to) {
+
+		if (mCondition.dryRunEnabled) {
+			return "DRY_RUN from=" + from + " to=" + to;
+		}
 
 		if (to == null) {
 			throw new RuntimeException("Language has not been specified. Please call setToLanguage to set language.");
