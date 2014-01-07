@@ -28,23 +28,45 @@ import java.util.List;
  */
 public class FileUtils {
 
-	public SearchFileInfo searchFilesInDir(File dir, String extension) {
-		return searchFilesInDir(dir, extension, null);
-	}
-
 	public static class SearchFileInfo {
 
-		private List<String> targetPathList = new ArrayList<String>();
-		private List<String> nonTargetPathList = new ArrayList<String>();
+		private List<String> allFilePathList = new ArrayList<String>();
 
-		public List<String> getTargetPathList() {
-			return targetPathList;
+		private List<String> filteredPathList = new ArrayList<String>();
+
+		public List<String> getAllFilePathList() {
+			return allFilePathList;
 		}
 
-		public List<String> getNonTargetPathList() {
-			return nonTargetPathList;
+		public List<String> getFfilteredPathList() {
+			return filteredPathList;
 		}
+	}
 
+	/**
+	 * Search files with the specified extension in the directory
+	 * 
+	 * @param dir
+	 * @param extensions
+	 * @return
+	 */
+	public SearchFileInfo searchFilesInDir(File dir, String... extensions) {
+
+		SearchFileInfo allFilesInDir = getAllFilesInDir(dir, null);
+		List<String> allFilePathList = allFilesInDir.getAllFilePathList();
+
+		for (String path : allFilePathList) {
+
+			for (String extension : extensions) {
+
+				if (path.endsWith(extension)) {
+					allFilesInDir.filteredPathList.add(path);
+				}
+
+			}
+
+		}
+		return allFilesInDir;
 	}
 
 	/**
@@ -55,7 +77,7 @@ public class FileUtils {
 	 * @param out
 	 * @return
 	 */
-	private SearchFileInfo searchFilesInDir(File dir, String extension, SearchFileInfo out) {
+	private SearchFileInfo getAllFilesInDir(File dir, SearchFileInfo out) {
 
 		if (out == null) {
 			out = new SearchFileInfo();
@@ -71,17 +93,11 @@ public class FileUtils {
 
 			} else if (file.isDirectory()) {
 
-				searchFilesInDir(file, extension, out);
+				getAllFilesInDir(file, out);
 
 			} else if (file.isFile()) {
 
-				if (file.getAbsolutePath().endsWith(extension)) {
-					// if target file
-					out.targetPathList.add(file.getAbsolutePath());
-				} else {
-					// if NOT a target file
-					out.nonTargetPathList.add(file.getAbsolutePath());
-				}
+				out.allFilePathList.add(file.getAbsolutePath());
 
 			}
 
