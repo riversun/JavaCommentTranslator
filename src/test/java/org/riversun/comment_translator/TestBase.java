@@ -20,6 +20,8 @@ import org.junit.Before;
 public class TestBase {
 	protected static final String PROJECT_PATH = new File(".").getAbsoluteFile().getParent();
 	protected static final String SAMPLE_CODE_PATH = PROJECT_PATH + "/src/test/resources/" + "SampleCode.txt";
+	protected static final String SAMPLE_PROJECT_PATH = PROJECT_PATH + "/src/test/resources/example_project";
+	protected static final String SAMPLE_PROJECT_OUT_PATH = PROJECT_PATH + "/src/test/resources/generated_project";
 	protected static final String SOURCE_CODE_CHARSET = "UTF-8";
 	protected String mSourceCode;
 
