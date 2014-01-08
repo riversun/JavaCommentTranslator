@@ -99,6 +99,28 @@ public class TranslationTest {
 }
 
 ```
+## Translate only comments in java source code?
+It corresponds to translation of the following three comment types
+
+- Normal comment
+```java
+// comment
+```
+- Block comment
+```java
+/* comment */
+```
+- JavaDoc comment
+```java
+/** comment */
+```
+
+If you have a <strong>C++ project</strong>, you can add extensions like followings.
+```java
+	condition.addSourceFileExtension(".cpp");
+	condition.addSourceFileExtension(".c");
+	condition.addSourceFileExtension(".h");
+```
 
 ## Want to remove comments?
 When you want to remove comments, edit condition for translation operation like followings.
@@ -108,6 +130,7 @@ condition.setJavaDocCommentOp(OpFlag.REMOVE);
 condition.setNormalCommentOp(OpFlag.REMOVE);
 condition.setBlockCommentOp(OpFlag.REMOVE);
 ```
+
 
 ## How to specify language
 ### Auto detect(default)
