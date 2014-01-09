@@ -50,8 +50,16 @@ public class TranslationCondition {
 
 	String proxyHost = null;
 	int proxyPort = -1;
+
 	Language fromLang = Language.AUTO_DETECT;
 	Language toLang = Language.ENGLISH;
+
+	boolean copyAllFiles = false;
+
+	boolean removeAllCommentEnabled = false;
+	boolean javaDocCommentEnabled = true;
+	boolean commentEnabled = true;
+	boolean blockCommentEnabled = true;
 
 	/**
 	 * Set from lang<br>
@@ -98,6 +106,61 @@ public class TranslationCondition {
 	public TranslationCondition setProxy(String proxyHost, int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
+		return TranslationCondition.this;
+	}
+
+	/**
+	 * To enable coping all files included non-source-code files
+	 * 
+	 * @param copyAllFiles
+	 * @return
+	 */
+	public TranslationCondition setCopyAllFiles(boolean copyAllFiles) {
+		this.copyAllFiles = copyAllFiles;
+		return TranslationCondition.this;
+	}
+
+	/**
+	 * To enable removing all comments
+	 * 
+	 * @param removeAllCommentEnabled
+	 * @return
+	 */
+	public TranslationCondition setRemoveAllCommentEnabled(boolean removeAllCommentEnabled) {
+		this.removeAllCommentEnabled = removeAllCommentEnabled;
+		return TranslationCondition.this;
+	}
+
+	/**
+	 * To enable translation of JavaDoc comments
+	 * 
+	 * @param javaDocCommentEnabled
+	 * @return
+	 */
+	public TranslationCondition setJavaDocCommentEnabled(boolean javaDocCommentEnabled) {
+		this.javaDocCommentEnabled = javaDocCommentEnabled;
+		return TranslationCondition.this;
+	}
+
+	/**
+	 * To enable translation of comments
+	 * 
+	 * @param commentEnabled
+	 * @return
+	 */
+	public TranslationCondition setCommentEnabled(boolean commentEnabled) {
+		this.commentEnabled = commentEnabled;
+		return TranslationCondition.this;
+	}
+
+	/**
+	 * To enable translation of Block comments
+	 * 
+	 * @param blockCommentEnabled
+	 * @return
+	 */
+	public TranslationCondition setBlockCommentEnabled(boolean blockCommentEnabled) {
+		this.blockCommentEnabled = blockCommentEnabled;
 		return TranslationCondition.this;
 	}
 
