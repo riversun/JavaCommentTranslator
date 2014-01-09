@@ -140,7 +140,7 @@ public class SrcFileTranslator {
 	 * @return
 	 * @throws IOException
 	 */
-	public String translate() throws IOException {
+	public String translate()  {
 		if (mCondition == null) {
 			throw new RuntimeException("TranslationCondition may have not been specified.Please call setCondition() at first.");
 		}
@@ -165,7 +165,7 @@ public class SrcFileTranslator {
 	 * @return
 	 * @throws IOException
 	 */
-	public int getTotalNumOfTargetTranslationLines() throws IOException {
+	public int getTotalNumOfTargetTranslationLines() {
 		if (mSourceCodeOrg == null || mSourceCodeOrg.isEmpty()) {
 			throw new RuntimeException("Target source file may have not been specified.Please call openFile() at first.");
 
