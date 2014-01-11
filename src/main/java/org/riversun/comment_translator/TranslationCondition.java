@@ -45,6 +45,9 @@ import com.memetix.mst.language.Language;
  */
 public class TranslationCondition {
 
+	public enum OpFlag{
+		TRANSLATE,NOT_TRANSLATE,REMOVE
+	}
 	String clientID = null;
 	String clientSecret = null;
 
@@ -56,10 +59,12 @@ public class TranslationCondition {
 
 	boolean copyAllFiles = false;
 
-	boolean removeAllCommentEnabled = false;
-	boolean javaDocCommentEnabled = true;
-	boolean commentEnabled = true;
-	boolean blockCommentEnabled = true;
+	
+	OpFlag javaDocCommentOperation = OpFlag.TRANSLATE;
+	OpFlag commentOperation= OpFlag.TRANSLATE;
+	OpFlag blockCommentOperation = OpFlag.TRANSLATE;
+
+	String sourceCodeCharset = "UTF-8";
 
 	/**
 	 * Set from lang<br>
@@ -70,6 +75,16 @@ public class TranslationCondition {
 	public TranslationCondition setFromLang(Language fromLang) {
 		this.fromLang = fromLang;
 		return TranslationCondition.this;
+	}
+
+	/**
+	 * Set charset of source code
+	 * 
+	 * @param sourceCodeCharset
+	 *            (DEFAULT is UTF-8)
+	 */
+	public void setSourceCodeCharset(String sourceCodeCharset) {
+		this.sourceCodeCharset = sourceCodeCharset;
 	}
 
 	/**
@@ -120,47 +135,38 @@ public class TranslationCondition {
 		return TranslationCondition.this;
 	}
 
-	/**
-	 * To enable removing all comments
-	 * 
-	 * @param removeAllCommentEnabled
-	 * @return
-	 */
-	public TranslationCondition setRemoveAllCommentEnabled(boolean removeAllCommentEnabled) {
-		this.removeAllCommentEnabled = removeAllCommentEnabled;
-		return TranslationCondition.this;
-	}
+ 
 
 	/**
 	 * To enable translation of JavaDoc comments
 	 * 
-	 * @param javaDocCommentEnabled
+	 * @param op
 	 * @return
 	 */
-	public TranslationCondition setJavaDocCommentEnabled(boolean javaDocCommentEnabled) {
-		this.javaDocCommentEnabled = javaDocCommentEnabled;
+	public TranslationCondition setJavaDocCommentEnabled(OpFlag op) {
+		this.javaDocCommentOperation = op;
 		return TranslationCondition.this;
 	}
 
 	/**
 	 * To enable translation of comments
 	 * 
-	 * @param commentEnabled
+	 * @param op
 	 * @return
 	 */
-	public TranslationCondition setCommentEnabled(boolean commentEnabled) {
-		this.commentEnabled = commentEnabled;
+	public TranslationCondition setCommentEnabled(OpFlag op) {
+		this.commentOperation = op;
 		return TranslationCondition.this;
 	}
 
 	/**
 	 * To enable translation of Block comments
 	 * 
-	 * @param blockCommentEnabled
+	 * @param op
 	 * @return
 	 */
-	public TranslationCondition setBlockCommentEnabled(boolean blockCommentEnabled) {
-		this.blockCommentEnabled = blockCommentEnabled;
+	public TranslationCondition setBlockCommentEnabled(OpFlag op) {
+		this.blockCommentOperation = op;
 		return TranslationCondition.this;
 	}
 
