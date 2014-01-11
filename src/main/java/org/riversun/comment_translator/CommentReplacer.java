@@ -34,7 +34,18 @@ public class CommentReplacer {
 		CodeType codeType;
 		String tagBegin;
 		String tagEnd;
+
+		@Override
+		public String toString() {
+			return "TagType [codeType=" + codeType + "]";
+		}
+
 	}
+
+	/**
+	 * Flag to determine whether callback with comment-tag like '//' or not
+	 */
+	private boolean commentCallbackWithTag = true;
 
 	/**
 	 * Code Type
@@ -74,7 +85,8 @@ public class CommentReplacer {
 
 	public static final String COMMENT_STARTED = "//";
 	public static final String COMMENT_FINISHED = NEWLINE;
-	private CodeType mScanMode = CodeType.EXECUTABLE_CODE;
+	private CodeType mCurrentScanMode = CodeType.EXECUTABLE_CODE;
+
 	private String mCurrentSrcCode = "";
 	private int mCurrentSrcCodeLen = 0;
 	private CommentListener mCommentListener = null;
@@ -89,13 +101,21 @@ public class CommentReplacer {
 		mCommentListener = commentListener;
 	}
 
+	private void setCurrentScanMode(CodeType scanMode) {
+
+		mCurrentScanMode = scanMode;
+
+	}
+
 	/**
 	 * Get comment removed/comment replaced source code
 	 * 
 	 * @param sourceCode
 	 * @return edited sourceCode
 	 */
-	public String replaceComment(String sourceCode) {
+	public List<CodeBlock> replaceComment(String sourceCode) {
+
+		final List<CodeBlock> codeBlockList = new ArrayList<CodeBlock>();
 
 		mBufferMap.clear();
 
@@ -111,26 +131,48 @@ public class CommentReplacer {
 				// if [tagBegin] found
 				if (isStartsWith(index, tagType.tagBegin)) {
 
-					if (CodeType.EXECUTABLE_CODE == mScanMode) {
+					if (mCurrentScanMode == CodeType.EXECUTABLE_CODE) {
+						String crrExecutableCode = getCommentBuffer(mCurrentScanMode).toString();
+						if (crrExecutableCode.length() > 0) {
+							final CodeBlock cb = new CodeBlock();
+							cb.tagType = mCurrentScanMode;
+							cb.value = crrExecutableCode;
+							codeBlockList.add(cb);
+
+							// clear buffer
+							getCommentBuffer(mCurrentScanMode).setLength(0);
+						}
+
+						// move the index forward by adding index
 						index += lenthOf(tagType.tagBegin);
-						mScanMode = tagType.codeType;
+
+						setCurrentScanMode(tagType.codeType);
 						continue charScanLoop;
 					}
 				}
 				// if [tagEnd] found
 				else if (isStartsWith(index, tagType.tagEnd)) {
 
-					if (tagType.codeType == mScanMode) {
+					if (mCurrentScanMode == tagType.codeType) {
+
+						// move the index forward by adding index
 						index += lenthOf(tagType.tagEnd);
-						mScanMode = CodeType.EXECUTABLE_CODE;
 
-						final String blockComment = tagType.tagBegin + getCommentBuffer(tagType.codeType).toString() + tagType.tagEnd;
-						final String commentToReplace = onCommentFound(tagType.codeType, blockComment);
+						// reset mode to executable code scanning mode
+						setCurrentScanMode(CodeType.EXECUTABLE_CODE);
 
-						if (commentToReplace != null) {
-							getCommentBuffer(CodeType.EXECUTABLE_CODE).append(commentToReplace);
+						final String blockComment;
+
+						if (commentCallbackWithTag) {
+							blockComment = tagType.tagBegin + getCommentBuffer(tagType.codeType).toString() + tagType.tagEnd;
+						} else {
+							blockComment = getCommentBuffer(tagType.codeType).toString();
 						}
 
+						final CodeBlock cb = new CodeBlock();
+						cb.tagType = tagType.codeType;
+						cb.value = blockComment;
+						codeBlockList.add(cb);
 						// clear buffer
 						getCommentBuffer(tagType.codeType).setLength(0);
 
@@ -142,13 +184,24 @@ public class CommentReplacer {
 
 			final String currentChar = stringAt(index);
 
-			getCommentBuffer(mScanMode).append(currentChar);
+			getCommentBuffer(mCurrentScanMode).append(currentChar);
 
 			index++;
 
 		}
 
-		return getCommentBuffer(CodeType.EXECUTABLE_CODE).toString();
+		return codeBlockList;
+	}
+
+	public class CodeBlock {
+		public CodeType tagType;
+		public String value;
+
+		@Override
+		public String toString() {
+			return "Tags [tagType=" + tagType + ", value=" + value + "]";
+		}
+
 	}
 
 	/**
@@ -235,6 +288,15 @@ public class CommentReplacer {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Set callback commented code with comment tag or not
+	 * 
+	 * @param commentCallbackWithTag
+	 */
+	public void setCommentCallbackWithTag(boolean commentCallbackWithTag) {
+		this.commentCallbackWithTag = commentCallbackWithTag;
 	}
 
 	private int lenthOf(String str) {
