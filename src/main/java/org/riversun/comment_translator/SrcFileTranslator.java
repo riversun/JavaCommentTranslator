@@ -14,9 +14,10 @@ package org.riversun.comment_translator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
+import org.riversun.comment_translator.CommentReplacer.CodeBlock;
 import org.riversun.comment_translator.CommentReplacer.CodeType;
-import org.riversun.comment_translator.CommentReplacer.CommentListener;
 import org.riversun.string_grabber.StringGrabber;
 
 import com.memetix.mst.language.Language;
@@ -34,91 +35,14 @@ public class SrcFileTranslator {
 		public void onProgress(int currentNumOfTranslation, int totalNumOfTargetTranslationLines);
 	}
 
-	private final CommentReplacer mCommentReplacer = new CommentReplacer();
+	private final AdvancedCommentReplacer mCommentReplacer = new AdvancedCommentReplacer();
+
 	private int mCurrentNumOfTargetTranslationLines = 0;
 	private int mTotalNumOfTargetTranslationLines = 0;
+
 	private SrcFileProgressListener mProgressListener = null;
 	private String mSourceCodeOrg = null;
 	private TranslationCondition mCondition = null;
-
-	private final CommentListener mTotalLinesToTranslationCounter = new CommentListener() {
-		@Override
-		public String onCommentFound(CodeType commentType, String comment) {
-
-			final String commentCharRemovedText = removeCommentChars(comment);
-
-			// if blank then return;
-			if (isBlank(commentCharRemovedText)) {
-				return null;
-			}
-
-			mTotalNumOfTargetTranslationLines++;
-
-			return null;
-		}
-	};
-
-	private final CommentListener mTranslationController = new CommentListener() {
-
-		@Override
-		public String onCommentFound(CodeType commentType, String comment) {
-
-			final String commentCharRemovedText = removeCommentChars(comment);
-
-			// if blank then return;
-			if (isBlank(commentCharRemovedText)) {
-				return null;
-			}
-
-			mCurrentNumOfTargetTranslationLines++;
-
-			if (mProgressListener != null) {
-				mProgressListener.onProgress(mCurrentNumOfTargetTranslationLines, mTotalNumOfTargetTranslationLines);
-			}
-
-			switch (commentType) {
-
-			case JAVADOC_COMMENT:
-
-				switch (mCondition.javaDocCommentOperation) {
-				case TRANSLATE:
-					return CommentReplacer.JAVADOC_COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang) + CommentReplacer.JAVADOC_COMMENT_FINISHED;
-				case NOT_TRANSLATE:
-					return comment;
-				case REMOVE:
-					return null;
-				}
-
-			case BLOCK_COMMENT:
-
-				switch (mCondition.javaDocCommentOperation) {
-				case TRANSLATE:
-					return CommentReplacer.BLOCK_COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang) + CommentReplacer.BLOCK_COMMENT_FINISHED;
-				case NOT_TRANSLATE:
-					return comment;
-				case REMOVE:
-					return null;
-				}
-
-			case COMMENT:
-
-				switch (mCondition.javaDocCommentOperation) {
-				case TRANSLATE:
-					return CommentReplacer.COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang);
-				case NOT_TRANSLATE:
-					return comment;
-				case REMOVE:
-					return null;
-				}
-
-			default:
-
-			}
-
-			return null;
-
-		}
-	};
 
 	/**
 	 * Open and read a java source file to prepare translation
@@ -133,6 +57,7 @@ public class SrcFileTranslator {
 
 		try {
 			mSourceCodeOrg = tfr.readText(srcFile, charset);
+			mCommentReplacer.setCommentCallbackWithTag(false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -168,21 +93,95 @@ public class SrcFileTranslator {
 	 * @throws IOException
 	 */
 	public String translate() {
+
 		if (mCondition == null) {
 			throw new RuntimeException("TranslationCondition may have not been specified.Please call setCondition() at first.");
 		}
+
 		if (mSourceCodeOrg == null || mSourceCodeOrg.isEmpty()) {
 			throw new RuntimeException("Target source file may have not been specified.Please call openFile().");
 
 		}
+
 		getTotalNumOfTargetTranslationLines();
 
-		mCommentReplacer.setCommentCallbackWithTag(true);
-		mCommentReplacer.setCommentListener(mTranslationController);
+		final StringBuilder sb = new StringBuilder();
 
-		final String sourceCodeChanged = "";// mCommentReplacer.replaceComment(mSourceCodeOrg);
+		List<CodeBlock> codeBlockList = mCommentReplacer.replaceComment(mSourceCodeOrg);
+
+		for (CodeBlock codeBlock : codeBlockList) {
+
+			if (codeBlock.tagType != CodeType.EXECUTABLE_CODE) {
+
+				mCurrentNumOfTargetTranslationLines++;
+
+				if (mProgressListener != null) {
+					mProgressListener.onProgress(mCurrentNumOfTargetTranslationLines, mTotalNumOfTargetTranslationLines);
+				}
+
+				final String translatedText = translateInternal(codeBlock.tagType, codeBlock.value);
+
+				if (translatedText != null) {
+					sb.append(translatedText);
+					sb.append("\n");
+				}
+
+			} else {
+				if (codeBlock.value != null) {
+					sb.append(codeBlock.value);
+					sb.append("\n");
+				}
+			}
+		}
+
+		final String sourceCodeChanged = sb.toString();
+
 		return sourceCodeChanged;
 
+	}
+
+	private String translateInternal(CodeType commentType, String comment) {
+
+		final String commentCharRemovedText = removeCommentChars(comment);
+
+		switch (commentType) {
+
+		case JAVADOC_COMMENT:
+
+			switch (mCondition.javaDocCommentOperation) {
+			case TRANSLATE:
+				return CommentReplacer.JAVADOC_COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang) + CommentReplacer.JAVADOC_COMMENT_FINISHED;
+			case NOT_TRANSLATE:
+				return comment;
+			case REMOVE:
+				return null;
+			}
+
+		case BLOCK_COMMENT:
+
+			switch (mCondition.javaDocCommentOperation) {
+			case TRANSLATE:
+				return CommentReplacer.BLOCK_COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang) + CommentReplacer.BLOCK_COMMENT_FINISHED;
+			case NOT_TRANSLATE:
+				return comment;
+			case REMOVE:
+				return null;
+			}
+
+		case COMMENT:
+
+			switch (mCondition.javaDocCommentOperation) {
+			case TRANSLATE:
+				return CommentReplacer.COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang);
+			case NOT_TRANSLATE:
+				return comment;
+			case REMOVE:
+				return null;
+			}
+
+		default:
+		}
+		return null;
 	}
 
 	/**
@@ -201,8 +200,13 @@ public class SrcFileTranslator {
 		mCurrentNumOfTargetTranslationLines = 0;
 		mTotalNumOfTargetTranslationLines = 0;
 
-		mCommentReplacer.setCommentListener(mTotalLinesToTranslationCounter);
-		mCommentReplacer.replaceComment(mSourceCodeOrg);
+		List<CodeBlock> codeBlockList = mCommentReplacer.replaceComment(mSourceCodeOrg);
+
+		for (CodeBlock cb : codeBlockList) {
+			if (cb.tagType != CodeType.EXECUTABLE_CODE) {
+				mTotalNumOfTargetTranslationLines++;
+			}
+		}
 
 		return mTotalNumOfTargetTranslationLines;
 	}

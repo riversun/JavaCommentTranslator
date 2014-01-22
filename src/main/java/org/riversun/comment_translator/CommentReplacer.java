@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JavaCommentRemover To remove comments from java source code<br>
+ * CommentReplacer To remove comments from java source code<br>
  * To replace comments as you like<br>
  * 
  * @author Tom Misawa (riversun.org@gmail.com)
@@ -58,21 +58,6 @@ public class CommentReplacer {
 	}
 
 	/**
-	 * Callback interface When found the comment
-	 */
-	public static interface CommentListener {
-		/**
-		 * When comment found
-		 * 
-		 * @param commentType
-		 * @param comment
-		 * @return returns comment to replace.If null,the comment will be
-		 *         removed from the source code<br>
-		 */
-		public String onCommentFound(CodeType commentType, String comment);
-	}
-
-	/**
 	 * Specify NEWLINE according to your code environment
 	 */
 	public static String NEWLINE = "\r\n";
@@ -89,16 +74,12 @@ public class CommentReplacer {
 
 	private String mCurrentSrcCode = "";
 	private int mCurrentSrcCodeLen = 0;
-	private CommentListener mCommentListener = null;
+
 	private List<TagType> mTagTypeList = new ArrayList<TagType>();
 	private Map<CodeType, StringBuilder> mBufferMap = new HashMap<CodeType, StringBuilder>();
 
 	public CommentReplacer() {
 		initialize();
-	}
-
-	public void setCommentListener(CommentListener commentListener) {
-		mCommentListener = commentListener;
 	}
 
 	private void setCurrentScanMode(CodeType scanMode) {
@@ -178,6 +159,8 @@ public class CommentReplacer {
 
 						continue charScanLoop;
 					}
+				} else {
+
 				}
 
 			}
@@ -188,6 +171,17 @@ public class CommentReplacer {
 
 			index++;
 
+		}
+
+		// Add last code
+		if (getCommentBuffer(mCurrentScanMode).length() > 0) {
+			String crrExecutableCode = getCommentBuffer(mCurrentScanMode).toString();
+			if (crrExecutableCode.length() > 0) {
+				final CodeBlock cb = new CodeBlock();
+				cb.tagType = mCurrentScanMode;
+				cb.value = crrExecutableCode;
+				codeBlockList.add(cb);
+			}
 		}
 
 		return codeBlockList;
@@ -231,14 +225,6 @@ public class CommentReplacer {
 		tagTypeNormalComment.tagBegin = COMMENT_STARTED;
 		tagTypeNormalComment.tagEnd = COMMENT_FINISHED;
 		mTagTypeList.add(tagTypeNormalComment);
-	}
-
-	private String onCommentFound(CodeType commentType, String comment) {
-
-		if (mCommentListener != null) {
-			return mCommentListener.onCommentFound(commentType, comment);
-		}
-		return null;
 	}
 
 	private StringBuilder getCommentBuffer(CodeType mode) {
@@ -296,6 +282,7 @@ public class CommentReplacer {
 	 * @param commentCallbackWithTag
 	 */
 	public void setCommentCallbackWithTag(boolean commentCallbackWithTag) {
+
 		this.commentCallbackWithTag = commentCallbackWithTag;
 	}
 
