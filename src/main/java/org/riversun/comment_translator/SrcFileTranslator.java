@@ -107,7 +107,7 @@ public class SrcFileTranslator {
 
 		final StringBuilder sb = new StringBuilder();
 
-		List<CodeBlock> codeBlockList = mCommentReplacer.replaceComment(mSourceCodeOrg);
+		List<CodeBlock> codeBlockList = mCommentReplacer.getCodeBlock(mSourceCodeOrg);
 
 		for (CodeBlock codeBlock : codeBlockList) {
 
@@ -200,7 +200,7 @@ public class SrcFileTranslator {
 		mCurrentNumOfTargetTranslationLines = 0;
 		mTotalNumOfTargetTranslationLines = 0;
 
-		List<CodeBlock> codeBlockList = mCommentReplacer.replaceComment(mSourceCodeOrg);
+		List<CodeBlock> codeBlockList = mCommentReplacer.getCodeBlock(mSourceCodeOrg);
 
 		for (CodeBlock cb : codeBlockList) {
 			if (cb.tagType != CodeType.EXECUTABLE_CODE) {
