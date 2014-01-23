@@ -28,9 +28,9 @@ public class AdvancedCommentReplacer extends CommentReplacer {
 	private boolean mIsRemoveUnnecessaryNewline = true;
 
 	@Override
-	public List<CodeBlock> replaceComment(String sourceCode) {
+	public List<CodeBlock> getCodeBlock(String sourceCode) {
 
-		final List<CodeBlock> resList = super.replaceComment(sourceCode);
+		final List<CodeBlock> resList = super.getCodeBlock(sourceCode);
 
 		final List<CodeBlock> retCodeBlockList = new ArrayList<CodeBlock>();
 
@@ -79,7 +79,7 @@ public class AdvancedCommentReplacer extends CommentReplacer {
 		this.mIsRemoveUnnecessaryNewline = removeUnnecessaryNewline;
 	}
 
-	private String removeUnnecessaryNewline(String text) {
+	String removeUnnecessaryNewline(String text) {
 		if (text == null || text.isEmpty()) {
 			return text;
 		}
