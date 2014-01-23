@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.riversun.string_grabber.StringGrabber;
+
 /**
  * CommentReplacer To remove comments from java source code<br>
  * To replace comments as you like<br>
@@ -24,6 +26,8 @@ import java.util.Map;
  * @author Tom Misawa (riversun.org@gmail.com)
  */
 public class CommentReplacer {
+
+	private static char BYTE_ORDER_MARK = 0xFEFF;
 
 	/**
 	 * 
@@ -94,7 +98,7 @@ public class CommentReplacer {
 	 * @param sourceCode
 	 * @return edited sourceCode
 	 */
-	public List<CodeBlock> replaceComment(String sourceCode) {
+	public List<CodeBlock> getCodeBlock(String sourceCode) {
 
 		final List<CodeBlock> codeBlockList = new ArrayList<CodeBlock>();
 
@@ -115,10 +119,11 @@ public class CommentReplacer {
 					if (mCurrentScanMode == CodeType.EXECUTABLE_CODE) {
 						String crrExecutableCode = getCommentBuffer(mCurrentScanMode).toString();
 						if (crrExecutableCode.length() > 0) {
-							final CodeBlock cb = new CodeBlock();
-							cb.tagType = mCurrentScanMode;
-							cb.value = crrExecutableCode;
-							codeBlockList.add(cb);
+
+							CodeBlock cb = createCodeBlock(mCurrentScanMode, crrExecutableCode);
+							if (cb != null) {
+								codeBlockList.add(cb);
+							}
 
 							// clear buffer
 							getCommentBuffer(mCurrentScanMode).setLength(0);
@@ -150,10 +155,10 @@ public class CommentReplacer {
 							blockComment = getCommentBuffer(tagType.codeType).toString();
 						}
 
-						final CodeBlock cb = new CodeBlock();
-						cb.tagType = tagType.codeType;
-						cb.value = blockComment;
-						codeBlockList.add(cb);
+						CodeBlock cb = createCodeBlock(tagType.codeType, blockComment);
+						if (cb != null) {
+							codeBlockList.add(cb);
+						}
 						// clear buffer
 						getCommentBuffer(tagType.codeType).setLength(0);
 
@@ -185,6 +190,29 @@ public class CommentReplacer {
 		}
 
 		return codeBlockList;
+	}
+
+	private CodeBlock createCodeBlock(CodeType codeType, final String comment) {
+
+		final CodeBlock cb = new CodeBlock();
+
+		StringGrabber sg = new StringGrabber(comment);
+		sg.removeHeadAndTailChars(' ');
+
+		cb.tagType = codeType;
+		cb.value = sg.toString();
+
+		// when BOM(byte order mark) found,skip processing
+		if (cb.value.length() == 1 && cb.value.charAt(0) == BYTE_ORDER_MARK) {
+			return null;
+		}
+
+		// make sure this value is not space or tab only string.
+		if (cb.value.replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "").length() > 0) {
+			return cb;
+		} else {
+			return null;
+		}
 	}
 
 	public class CodeBlock {
