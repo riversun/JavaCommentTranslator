@@ -117,7 +117,9 @@ public class CommentReplacer {
 				if (isStartsWith(index, tagType.tagBegin)) {
 
 					if (mCurrentScanMode == CodeType.EXECUTABLE_CODE) {
+
 						String crrExecutableCode = getCommentBuffer(mCurrentScanMode).toString();
+						
 						if (crrExecutableCode.length() > 0) {
 
 							CodeBlock cb = createCodeBlock(mCurrentScanMode, crrExecutableCode);
@@ -133,8 +135,10 @@ public class CommentReplacer {
 						index += lenthOf(tagType.tagBegin);
 
 						setCurrentScanMode(tagType.codeType);
+
 						continue charScanLoop;
 					}
+
 				}
 				// if [tagEnd] found
 				else if (isStartsWith(index, tagType.tagEnd)) {
@@ -147,15 +151,15 @@ public class CommentReplacer {
 						// reset mode to executable code scanning mode
 						setCurrentScanMode(CodeType.EXECUTABLE_CODE);
 
-						final String blockComment;
+						final String anyComment;
 
 						if (commentCallbackWithTag) {
-							blockComment = tagType.tagBegin + getCommentBuffer(tagType.codeType).toString() + tagType.tagEnd;
+							anyComment = tagType.tagBegin + getCommentBuffer(tagType.codeType).toString() + tagType.tagEnd;
 						} else {
-							blockComment = getCommentBuffer(tagType.codeType).toString();
+							anyComment = getCommentBuffer(tagType.codeType).toString();
 						}
 
-						CodeBlock cb = createCodeBlock(tagType.codeType, blockComment);
+						CodeBlock cb = createCodeBlock(tagType.codeType, anyComment);
 						if (cb != null) {
 							codeBlockList.add(cb);
 						}
@@ -178,7 +182,7 @@ public class CommentReplacer {
 
 		}
 
-		// Add last code
+		// Add executable code at last
 		if (getCommentBuffer(mCurrentScanMode).length() > 0) {
 			String crrExecutableCode = getCommentBuffer(mCurrentScanMode).toString();
 			if (crrExecutableCode.length() > 0) {
