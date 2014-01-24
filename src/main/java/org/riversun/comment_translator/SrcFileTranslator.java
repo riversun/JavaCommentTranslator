@@ -44,6 +44,12 @@ public class SrcFileTranslator {
 	private String mSourceCodeOrg = null;
 	private TranslationCondition mCondition = null;
 
+	private boolean mIsDryRun = false;
+
+	public void setDryRun(boolean dryRunEnabled) {
+		mIsDryRun = dryRunEnabled;
+	}
+
 	/**
 	 * Open and read a java source file to prepare translation
 	 * 
@@ -119,7 +125,13 @@ public class SrcFileTranslator {
 					mProgressListener.onProgress(mCurrentNumOfTargetTranslationLines, mTotalNumOfTargetTranslationLines);
 				}
 
-				final String translatedText = translateInternal(codeBlock.tagType, codeBlock.value);
+				final String translatedText;
+
+				if (mIsDryRun) {
+					translatedText = getCommentEnclosedWithCommentChars(codeBlock.tagType, "DUMMY TRANSLATION(DRY RUN MODE)");
+				} else {
+					translatedText = translateInternal(codeBlock.tagType, codeBlock.value);
+				}
 
 				if (translatedText != null) {
 					sb.append(translatedText);
@@ -150,7 +162,7 @@ public class SrcFileTranslator {
 
 			switch (mCondition.javaDocCommentOperation) {
 			case TRANSLATE:
-				return CommentReplacer.JAVADOC_COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang) + CommentReplacer.JAVADOC_COMMENT_FINISHED;
+				return getCommentEnclosedWithCommentChars(commentType, doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang));
 			case NOT_TRANSLATE:
 				return comment;
 			case REMOVE:
@@ -161,7 +173,7 @@ public class SrcFileTranslator {
 
 			switch (mCondition.javaDocCommentOperation) {
 			case TRANSLATE:
-				return CommentReplacer.BLOCK_COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang) + CommentReplacer.BLOCK_COMMENT_FINISHED;
+				return getCommentEnclosedWithCommentChars(commentType, doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang));
 			case NOT_TRANSLATE:
 				return comment;
 			case REMOVE:
@@ -172,7 +184,7 @@ public class SrcFileTranslator {
 
 			switch (mCondition.javaDocCommentOperation) {
 			case TRANSLATE:
-				return CommentReplacer.COMMENT_STARTED + doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang);
+				return getCommentEnclosedWithCommentChars(commentType, doTranslate(mCondition.fromLang, commentCharRemovedText, mCondition.toLang));
 			case NOT_TRANSLATE:
 				return comment;
 			case REMOVE:
@@ -182,6 +194,28 @@ public class SrcFileTranslator {
 		default:
 		}
 		return null;
+	}
+
+	String getCommentEnclosedWithCommentChars(CodeType commentType, String comment) {
+
+		switch (commentType) {
+
+		case JAVADOC_COMMENT:
+
+			return CommentReplacer.JAVADOC_COMMENT_STARTED + comment + CommentReplacer.JAVADOC_COMMENT_FINISHED;
+
+		case BLOCK_COMMENT:
+
+			return CommentReplacer.BLOCK_COMMENT_STARTED + comment + CommentReplacer.BLOCK_COMMENT_FINISHED;
+
+		case COMMENT:
+
+			return CommentReplacer.COMMENT_STARTED + comment;
+
+		default:
+		}
+		return comment;
+
 	}
 
 	/**
